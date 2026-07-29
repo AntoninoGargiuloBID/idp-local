@@ -26,7 +26,7 @@ See [`docs/`](./docs) for the running log of what's been set up and why.
 - [x] `provider-kubernetes` installed (via ArgoCD `Application`) — will swap/add AWS provider once satisfied with the mechanics
 - [x] `Database` XRD + Composition working end-to-end (claim → ConfigMap + Deployment), verified with a sample claim
 - [x] Backstage scaffolded and running locally (`backstage/`, `yarn start` — frontend `:3000`, backend `:7007`)
-- [ ] Backstage template submits a `Database` claim (real self-service, not hand-applied YAML)
+- [x] "Provision a Database" Backstage template built (fetch:template → publish:github:pull-request → ArgoCD `database-claims` app) — not yet exercised end-to-end (needs push + `GITHUB_TOKEN`)
 
 ## Quick reference
 
