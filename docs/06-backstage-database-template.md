@@ -1,7 +1,20 @@
 # 06 — Backstage "Provision a Database" template
 
-Status: template + PR/ArgoCD plumbing built. Not yet exercised end-to-end
-(waiting on push + a `GITHUB_TOKEN` for Backstage).
+Status: **working end-to-end**, verified live. Submitted `name: test-db,
+size: medium` through the Backstage UI → PR #1 opened → fixed a
+filename-templating bug (see below) → merged → ArgoCD `database-claims`
+synced it → Crossplane composed a real ConfigMap + Deployment:
+
+```
+kubectl get database.idp-local.dev -n default
+# NAME      SYNCED   READY   CONNECTION-SECRET   AGE
+# test-db   True     True                        7s
+
+kubectl get configmap,deployment,pods -n default | grep test-db
+# configmap/test-db-2xct2-config      ...
+# deployment.apps/test-db-2xct2-db    1/1  1  1
+# pod/test-db-2xct2-db-...            1/1  Running
+```
 
 ## Design decision: stock actions, not a custom one
 
@@ -117,14 +130,26 @@ PR #1 now shows the correct path. The template source fix
 directory — not version controlled, since `backstage/` is gitignored from
 this repo (see `05-backstage-setup.md`).
 
-3. Once running with the token, use the Backstage UI
-   (`http://localhost:3000` → Create → "Provision a Database") to submit a
-   claim and confirm the PR → merge → ArgoCD → Crossplane chain works live.
+## Merging and a divergent-history hiccup
+
+Merged PR #1 with `gh pr merge --squash --delete-branch`. That created a
+squash commit on GitHub's `main` with the same parent as a local commit
+(the bug writeup) that hadn't been pushed yet — two sibling commits off the
+same base, real divergence, not just a stale ref. Fixed with a normal
+`git merge origin/main` (no conflicts, since the two commits touched
+different files) and pushed the merge commit.
+
+Once merged, ArgoCD's `database-claims` Application was still showing the
+previous commit (its default poll interval hadn't hit yet) — forced it with
+`argocd app get database-claims --refresh` then `argocd app sync
+database-claims`, which picked up `test-db.yaml` immediately and applied it.
 
 ## Next up
 
-- Exercise the template once the above is done; fix anything that breaks
-  (first real end-to-end run, so treat it as a test, not a guarantee).
 - Longer term: swap `provider-kubernetes` for the AWS provider (see
   `03-provider-kubernetes-setup.md`) — the template/XRD/claim shape doesn't
   need to change, only the Composition behind it.
+- Consider adding a `Service` + `PersistentVolumeClaim` to the Composition
+  (see `04-database-xrd-composition.md`'s "what's real vs. simulated"
+  section) so claimed databases are actually reachable/durable, not just a
+  proof of the plumbing.
