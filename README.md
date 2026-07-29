@@ -25,7 +25,7 @@ See [`docs/`](./docs) for the running log of what's been set up and why.
 - [x] Crossplane installed (via ArgoCD `Application`, not direct Helm)
 - [x] `provider-kubernetes` installed (via ArgoCD `Application`) — will swap/add AWS provider once satisfied with the mechanics
 - [x] `Database` XRD + Composition working end-to-end (claim → ConfigMap + Deployment), verified with a sample claim
-- [ ] Backstage installed
+- [x] Backstage scaffolded and running locally (`backstage/`, `yarn start` — frontend `:3000`, backend `:7007`)
 - [ ] Backstage template submits a `Database` claim (real self-service, not hand-applied YAML)
 
 ## Quick reference
