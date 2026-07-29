@@ -37,6 +37,7 @@ spec:
                 transforms:
                   - type: string
                     string:
+                      type: Format
                       fmt: "%s-config"
               - type: FromCompositeFieldPath
                 fromFieldPath: spec.parameters.size
@@ -79,6 +80,7 @@ spec:
                 transforms:
                   - type: string
                     string:
+                      type: Format
                       fmt: "%s-db"
               - type: FromCompositeFieldPath
                 fromFieldPath: metadata.name
