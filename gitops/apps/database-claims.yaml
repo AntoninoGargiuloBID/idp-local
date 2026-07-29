@@ -9,6 +9,8 @@ spec:
     repoURL: https://github.com/AntoninoGargiuloBID/idp-local.git
     targetRevision: main
     path: gitops/claims
+    directory:
+      exclude: "*.catalog-info.yaml"
   destination:
     server: https://kubernetes.default.svc
     namespace: default
