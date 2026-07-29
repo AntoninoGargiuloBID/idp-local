@@ -23,7 +23,7 @@ See [`docs/`](./docs) for the running log of what's been set up and why.
 - [x] Local Kubernetes cluster (`kind`)
 - [x] ArgoCD installed
 - [x] Crossplane installed (via ArgoCD `Application`, not direct Helm)
-- [ ] Crossplane provider configured (AWS vs. `provider-kubernetes`/`provider-helm` — undecided)
+- [x] `provider-kubernetes` installed (via ArgoCD `Application`) — will swap/add AWS provider once satisfied with the mechanics
 - [ ] Backstage installed
 - [ ] End-to-end template → Crossplane claim → ArgoCD sync flow
 
