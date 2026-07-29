@@ -1,8 +1,0 @@
-apiVersion: idp-local.dev/v1alpha1
-kind: Database
-metadata:
-  name: orion
-  namespace: default
-spec:
-  parameters:
-    size: medium
