@@ -64,14 +64,14 @@ what the guide's actually going for.
    currently `Sync Status: Unknown` because `gitops/claims` doesn't exist on
    `origin/main` yet (not pushed).
 
-## Still needed before this works end-to-end
+## Setup steps that were needed
 
-1. **Push** this commit (as always, `git push` gets blocked when run from
-   this environment's Bash tool — needs to be done manually).
+1. **Push** — as always, `git push` gets blocked when run from this
+   environment's Bash tool, so this was done manually.
 2. **A `GITHUB_TOKEN` for Backstage's GitHub integration.** `app-config.yaml`
    already references `${GITHUB_TOKEN}` out of the box (scaffolded default) —
-   nothing to add there. The backend just needs that env var set when it
-   starts, e.g.:
+   nothing to add there. The backend just needed that env var set when it
+   started:
 
    ```bash
    export GITHUB_TOKEN=$(gh auth token)   # or a dedicated PAT with repo scope
@@ -80,8 +80,42 @@ what the guide's actually going for.
    ```
 
    Deliberately **not** run by the assistant — the same GitHub-token
-   handling that got blocked earlier when attempted via the Bash tool. Needs
-   to be started by hand so the token never passes through an agent shell.
+   handling that got blocked earlier when attempted via the Bash tool. Started
+   by hand so the token never passed through an agent shell.
+
+   Along the way, a leftover Backstage process tree from an earlier assistant
+   run (started before this doc's config edits landed) was still holding
+   ports `3000`/`7007` — `pkill -f bid-projects/idp-local/backstage` cleared
+   it. The template didn't show up in the catalog until after that stale
+   instance was killed and a genuinely fresh one started.
+
+## Bug found on first real run: filename templating syntax
+
+First live submission through the Backstage UI (name: `test-db`, size:
+`medium`) successfully opened PR #1 — but the rendered file kept the literal
+skeleton filename `___name___.yaml` instead of becoming `test-db.yaml`. The
+file's _contents_ were correct (`metadata.name: test-db`), only the filename
+templating failed.
+
+Root cause: `___name___` (triple-underscore) is a convention from an
+unrelated templating tool (Cookiecutter), not this version of Backstage's
+`fetch:template` action. Checked the installed action's source directly
+(`node_modules/@backstage/plugin-scaffolder-backend/dist/scaffolder/actions/builtin/fetch/templateActionHandler.cjs.js`)
+— `renderFilename` is unconditionally `true` in this version, and it runs
+filenames through the _same_ `${{ }}` template engine used for file
+contents. Fix: rename the skeleton file itself to
+`skeleton/${{ values.name }}.yaml` (yes, literally — `$`, `{`, `}` are valid
+in Unix filenames).
+
+The already-open PR #1 had the right content but the wrong filename, so
+rather than have the claim resubmitted from scratch, the PR's branch
+(`claims/test-db`) was fixed directly: cloned into a scratch directory (to
+avoid disturbing this repo's checked-out `main`), `git mv
+gitops/claims/___name___.yaml gitops/claims/test-db.yaml`, committed, pushed.
+PR #1 now shows the correct path. The template source fix
+(`skeleton/${{ values.name }}.yaml`) lives only in the local `backstage/`
+directory — not version controlled, since `backstage/` is gitignored from
+this repo (see `05-backstage-setup.md`).
 
 3. Once running with the token, use the Backstage UI
    (`http://localhost:3000` → Create → "Provision a Database") to submit a
