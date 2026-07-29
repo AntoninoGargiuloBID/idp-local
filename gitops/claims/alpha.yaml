@@ -1,0 +1,8 @@
+apiVersion: idp-local.dev/v1alpha1
+kind: Database
+metadata:
+  name: alpha
+  namespace: default
+spec:
+  parameters:
+    size: small

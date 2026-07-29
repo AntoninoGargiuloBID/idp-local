@@ -1,0 +1,8 @@
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: alpha
+  description: Crossplane Database claim (size small)
+spec:
+  type: database
+  owner: platform-team
